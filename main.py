@@ -16,8 +16,10 @@ class Paddle:
     self.x = x
     self.y = y
     self.spd = 30
-    self.vx = 2
-    self.vy = (-2)
+    self.vx = 10
+    self.vy = (-10)
+    self.width = 100
+    self.height = 100
 
 class Ball:
   
@@ -25,8 +27,17 @@ class Ball:
     self.img = pygame.image.load("res/ball.png")
     self.x = x
     self.y = y
-    self.vx = 2
-    self.vy = 2
+    self.vx = 10
+    self.vy = 10
+
+class PowerUp:
+
+  def __init__(self, x, y, effect, direct, spd):
+    self.x = x
+    self.y = y
+    self.effect = effect
+    self.dir = direct
+    self.spd = spd
 
 def main():
   pygame.init()
@@ -57,9 +68,11 @@ def main():
       gameDisplay.fill(black)
       gameDisplay.blit(intro_logo, (0,0))
       pygame.display.flip()
-    elif play_game:
+
+    elif play_game: 
       # Update
 
+      # Collide with screen edges
       if (ball.x + ball.vx >= 1280 or ball.x + ball.vx <= 0):
         ball.vx *= (-1)
       else:
@@ -70,6 +83,14 @@ def main():
       else:
         ball.y += ball.vy
 
+      # Collide with p1
+      if (ball.x + ball.vx <= p1.x + p1.width and ball.y >= p1.y and ball.y <= p1.y + p1.height):
+        ball.vx *= (-1)
+      # Collide with p2
+      if (ball.x + ball.vx >= p2.x - p2.width and ball.y >= p2.y and ball.y <= p2.y + p2.height):
+        ball.vx *= (-1)
+
+      # Getting events
       for event in pygame.event.get():
         if event.type == pygame.QUIT:
           done = True
@@ -82,6 +103,7 @@ def main():
             p1.y -= p1.spd
           if event.key == pygame.K_s:
             p1.y += p1.spd
+
       # Render
       gameDisplay.fill(black)
       gameDisplay.blit(p1.img, (p1.x, p1.y))
