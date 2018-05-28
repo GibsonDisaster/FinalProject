@@ -50,8 +50,30 @@ display_height = 600
 black = (0, 0, 0)
 white = (255, 255, 255)
 
+# Load animations
+
+explosion_animation = []
+explosion_links = ["res/explosion1.png", "res/explosion2.png", "res/explosion3.png", "res/explosion4.png", "res/explosion5.png", "res/explosion6.png"]
+
+for link in explosion_links:
+  explosion_animation.append(pygame.image.load(link))
+
+mouth_animation = []
+mouth_links = ["res/mouth1.png", "res/mouth2.png", "res/mouth3.png", "res/mouth4.png", "res/mouth5.png", "res/mouth5.png"]
+
+for link in mouth_links:
+  mouth_animation.append(pygame.image.load(link))
+
+laser_animation = []
+laser_links = ["res/laser1.png", "res/laser2.png", "res/laser3.png", "res/laser4.png", "res/laser5.png", "res/laser6.png"]
+
+for link in laser_links:
+  laser_animation.append(pygame.image.load(link))
+
 # Load images
 intro_logo = pygame.image.load("res/logo.png")
+
+background_image = pygame.image.load("res/background.png")
 
 point_images = []
 point_links = ["res/p0.png", "res/p1.png", "res/p2.png", "res/p3.png", "res/p4.png", "res/p5.png"]
@@ -59,13 +81,7 @@ point_links = ["res/p0.png", "res/p1.png", "res/p2.png", "res/p3.png", "res/p4.p
 for link in point_links:
   point_images.append(pygame.image.load(link))
 
-test = []
-image_links = ["res/mouth1.png", "res/mouth2.png", "res/mouth3.png", "res/mouth4.png", "res/mouth5.png"]
-
-zipped_images = list(zip(image_links, image_links))
-
-for link in flatten(zipped_images):
-  test.append(pygame.image.load(link))
+# Classes
 
 class Paddle:
 
@@ -111,7 +127,7 @@ def main():
   p1 = Paddle(100, 0, 50, 300)
   p2 = Paddle(1180, 0, 50, 300)
 
-  counter = 0
+  six_frame_count = 0
 
   power_up_chance = 999
 
@@ -125,7 +141,7 @@ def main():
   all_power_ups = [PowerUp(random.randint(200, 1080), random.randint(100, 620), "split", (1, 0)), PowerUp(random.randint(200, 1080), random.randint(100, 620), "fast", (1, 0)), PowerUp(random.randint(200, 1080), random.randint(100, 620), "slow", (1, 0)), PowerUp(random.randint(200, 1080), random.randint(100, 620), "target", (1, 0)), PowerUp(random.randint(200, 1080), random.randint(100, 620), "double", (1, 0)), PowerUp(random.randint(200, 1080), random.randint(100, 620), "mouth", (1, 0)), PowerUp(random.randint(200, 1080), random.randint(100, 620), "laser", (1, 0))]
   power_ups = []
 
-  balls = [Ball(300, 400, 5, 5), Ball(300, 200, -5, 5)]
+  balls = [Ball(300, 400, 10, 10), Ball(300, 200, -10, 10)]
 
   while not done:
 
@@ -201,10 +217,11 @@ def main():
       p2.y += p2.v
 
       # Render
-      gameDisplay.fill(black)
-      gameDisplay.blit(test[counter], (100, 100))
+      
       #gameDisplay.blit(point_images[point1], (100, 0))
       #gameDisplay.blit(point_images[point2], (1180, 0))
+
+      gameDisplay.blit(background_image.convert(), (0, 0))
 
       for power in power_ups:
         gameDisplay.blit(get_sprite(power.effect), (power.x, power.y))
@@ -217,10 +234,10 @@ def main():
       
       pygame.display.flip()
 
-      if counter == len(test) - 1:
-        counter = 0
+      if six_frame_count == 6:
+        six_frame_count = 0
       else:
-        counter += 1
+        six_frame_count += 1
 
     pygame.display.update()
     clock.tick(60)
