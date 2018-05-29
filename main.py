@@ -1,5 +1,6 @@
 import pygame
 import random
+import itertools
 
 '''
     Ball splitting
@@ -52,23 +53,23 @@ white = (255, 255, 255)
 
 # Load animations
 
-explosion_animation = []
+explosion_animation_frames = []
 explosion_links = ["res/explosion1.png", "res/explosion2.png", "res/explosion3.png", "res/explosion4.png", "res/explosion5.png", "res/explosion6.png"]
 
 for link in explosion_links:
-  explosion_animation.append(pygame.image.load(link))
+  explosion_animation_frames.append(pygame.image.load(link))
 
-mouth_animation = []
+mouth_animation_frames = []
 mouth_links = ["res/mouth1.png", "res/mouth2.png", "res/mouth3.png", "res/mouth4.png", "res/mouth5.png", "res/mouth5.png"]
 
 for link in mouth_links:
-  mouth_animation.append(pygame.image.load(link))
+  mouth_animation_frames.append(pygame.image.load(link))
 
-laser_animation = []
+laser_animation_frames = []
 laser_links = ["res/laser1.png", "res/laser2.png", "res/laser3.png", "res/laser4.png", "res/laser5.png", "res/laser6.png"]
 
 for link in laser_links:
-  laser_animation.append(pygame.image.load(link))
+  laser_animation_frames.append(pygame.image.load(link))
 
 # Load images
 intro_logo = pygame.image.load("res/logo.png")
@@ -118,6 +119,17 @@ class PowerUp:
     self.x += self.dir[0]
     self.y += self.dir[1]
 
+class Anim:
+
+  def __init__(self, x, y, dur, frames):
+    self.x = x
+    self.y = y
+    self.dur = dur
+    self.counter = 0
+    self.current_frame = 0
+    self.frames = frames
+    self.showing = True
+
 def main():
   pygame.init()
   gameDisplay = pygame.display.set_mode((1280, 720))
@@ -126,6 +138,14 @@ def main():
 
   p1 = Paddle(100, 0, 50, 300)
   p2 = Paddle(1180, 0, 50, 300)
+
+  # init animations
+
+  current_animations = []
+
+  explosion_animations = []
+  mouth_animations = []
+  laser_animations = []
 
   six_frame_count = 0
 
@@ -190,9 +210,11 @@ def main():
         # Collide with p1
         if (ball.x + ball.vx <= p1.x + p1.width and ball.y >= p1.y and ball.y <= p1.y + p1.height):
           ball.vx *= (-1)
+          current_animations.append(Anim(ball.x, ball.y, len(explosion_animation_frames) - 1, explosion_animation_frames))
         # Collide with p2
         if (ball.x + ball.vx >= p2.x and ball.y >= p2.y and ball.y <= p2.y + p2.height):
           ball.vx *= (-1)
+          current_animations.append(Anim(ball.x, ball.y, len(explosion_animation_frames) - 1, explosion_animation_frames))
 
       # Getting events
       for event in pygame.event.get():
@@ -222,6 +244,17 @@ def main():
       #gameDisplay.blit(point_images[point2], (1180, 0))
 
       gameDisplay.blit(background_image.convert(), (0, 0))
+
+      for anim in current_animations:
+        if anim.showing:
+          gameDisplay.blit(anim.frames[anim.current_frame], (anim.x, anim.y))
+        if (anim.current_frame == anim.dur):
+          anim.showing = False
+        else:
+          anim.current_frame += 1
+
+      itertools.filterfalse(lambda x: not x.showing, current_animations)
+      print(len(current_animations))
 
       for power in power_ups:
         gameDisplay.blit(get_sprite(power.effect), (power.x, power.y))
