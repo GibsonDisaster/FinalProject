@@ -1,6 +1,7 @@
 import pygame
 import random
 import itertools
+from math import (sin, tan)
 
 '''
     Ball splitting
@@ -9,8 +10,8 @@ import itertools
     Ladies
   X Point system
     Acid
-    Ball animation (explosion when bouncing)
-    Fix logo
+  X Ball animation (explosion when bouncing)
+  X Fix logo
     Make good
 '''
 
@@ -141,6 +142,8 @@ def main():
 
   # init animations
 
+  sin_x = 0
+
   current_animations = []
 
   explosion_animations = []
@@ -174,9 +177,14 @@ def main():
           show_logo = False
           play_game = True
 
+      if sin_x == 1:
+        sin_x = 0
+      else:
+        sin_x += 0.1
+
       # Render
       gameDisplay.fill(black)
-      gameDisplay.blit(intro_logo, (0,0))
+      gameDisplay.blit(intro_logo, (400 + sin(sin_x) * 200, 400 + tan(sin_x) * 200))
       pygame.display.flip()
 
     elif play_game:
@@ -239,11 +247,11 @@ def main():
       p2.y += p2.v
 
       # Render
-      
-      #gameDisplay.blit(point_images[point1], (100, 0))
-      #gameDisplay.blit(point_images[point2], (1180, 0))
 
       gameDisplay.blit(background_image.convert(), (0, 0))
+      
+      gameDisplay.blit(point_images[point1], (100, 0))
+      gameDisplay.blit(point_images[point2], (1180, 0))
 
       for anim in current_animations:
         if anim.showing:
