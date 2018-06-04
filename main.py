@@ -133,12 +133,12 @@ class Anim:
 
 def main():
   pygame.init()
-  gameDisplay = pygame.display.set_mode((1280, 720))
+  gameDisplay = pygame.display.set_mode((display_width, display_height))
   pygame.display.set_caption("Pong On Acid")
   clock = pygame.time.Clock()
 
   p1 = Paddle(100, 0, 50, 300)
-  p2 = Paddle(1180, 0, 50, 300)
+  p2 = Paddle(display_width - 100, 0, 50, 300)
 
   # init animations
 
@@ -164,7 +164,7 @@ def main():
   all_power_ups = [PowerUp(random.randint(200, 1080), random.randint(100, 620), "split", (1, 0)), PowerUp(random.randint(200, 1080), random.randint(100, 620), "fast", (1, 0)), PowerUp(random.randint(200, 1080), random.randint(100, 620), "slow", (1, 0)), PowerUp(random.randint(200, 1080), random.randint(100, 620), "target", (1, 0)), PowerUp(random.randint(200, 1080), random.randint(100, 620), "double", (1, 0)), PowerUp(random.randint(200, 1080), random.randint(100, 620), "mouth", (1, 0)), PowerUp(random.randint(200, 1080), random.randint(100, 620), "laser", (1, 0))]
   power_ups = []
 
-  balls = [Ball(300, 400, 10, 10), Ball(300, 200, -10, 10)]
+  balls = [Ball(int(display_width / 2), int(display_height / 2), int(display_width * 0.0078125), int(display_height * 0.013888)), Ball(int(display_width / 2), int(display_height / 2), -(int(0.0078125 * display_width)), int(display_height * 0.013888))]
 
   while not done:
 
@@ -180,7 +180,7 @@ def main():
       if sin_x == 1:
         sin_x = 0
       else:
-        sin_x += 0.1
+        sin_x += 0.05
 
       # Render
       gameDisplay.fill(black)
@@ -194,11 +194,10 @@ def main():
 
       if random.choice([False] * power_up_chance + [True]) == True:
         power_ups.append(random.choice(all_power_ups))
-        print("spawn!")
 
       # Collide with screen edges
       for ball in balls:
-        if (ball.x + ball.vx >= 1280):
+        if (ball.x + ball.vx >= display_width):
           point1 += 1
           ball.x = 600
         else:
@@ -210,7 +209,7 @@ def main():
         else:
           ball.x += ball.vx
 
-        if (ball.y + ball.vy >= 720 or ball.y + ball.vy <= 0):
+        if (ball.y + ball.vy >= display_height or ball.y + ball.vy <= 0):
           ball.vy *= (-1)
         else:
           ball.y += ball.vy
@@ -247,11 +246,10 @@ def main():
       p2.y += p2.v
 
       # Render
-
-      gameDisplay.blit(background_image.convert(), (0, 0))
+      gameDisplay.fill(black)
       
       gameDisplay.blit(point_images[point1], (100, 0))
-      gameDisplay.blit(point_images[point2], (1180, 0))
+      gameDisplay.blit(point_images[point2], (display_width - 100, 0))
 
       for anim in current_animations:
         if anim.showing:
