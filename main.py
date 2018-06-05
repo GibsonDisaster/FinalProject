@@ -1,7 +1,7 @@
 import pygame
 import random
 import itertools
-from math import (sin, tan)
+from math import (sin, tan, hypot)
 
 '''
     Ball splitting
@@ -46,8 +46,14 @@ def get_sprite(name):
     'laser': pygame.image.load("res/laser.png")
   }.get(name, pygame.image.load("res/power_up_error.png"))
 
-display_width = 800
-display_height = 600
+def ball_colliding(b, p):
+  if (hypot(p.x - b.x, p.y - b.y) < b.r + 30):
+    return True
+  else:
+    return False
+
+display_width = 1280
+display_height = 720
 
 black = (0, 0, 0)
 white = (255, 255, 255)
@@ -152,7 +158,7 @@ def main():
 
   six_frame_count = 0
 
-  power_up_chance = 999
+  power_up_chance = 99
 
   point1 = 0
   point2 = 0
@@ -163,8 +169,9 @@ def main():
 
   all_power_ups = [PowerUp(random.randint(200, 1080), random.randint(100, 620), "split", (1, 0)), PowerUp(random.randint(200, 1080), random.randint(100, 620), "fast", (1, 0)), PowerUp(random.randint(200, 1080), random.randint(100, 620), "slow", (1, 0)), PowerUp(random.randint(200, 1080), random.randint(100, 620), "target", (1, 0)), PowerUp(random.randint(200, 1080), random.randint(100, 620), "double", (1, 0)), PowerUp(random.randint(200, 1080), random.randint(100, 620), "mouth", (1, 0)), PowerUp(random.randint(200, 1080), random.randint(100, 620), "laser", (1, 0))]
   power_ups = []
+  current_power_ups = []
 
-  balls = [Ball(int(display_width / 2), int(display_height / 2), int(display_width * 0.0078125), int(display_height * 0.013888)), Ball(int(display_width / 2), int(display_height / 2), -(int(0.0078125 * display_width)), int(display_height * 0.013888))]
+  balls = [Ball(int(display_width / 2), int(display_height / 2), -(int(0.0078125 * display_width)), int(display_height * 0.013888))]
 
   while not done:
 
@@ -248,8 +255,8 @@ def main():
       # Render
       gameDisplay.fill(black)
       
-      gameDisplay.blit(point_images[point1], (100, 0))
-      gameDisplay.blit(point_images[point2], (display_width - 100, 0))
+      #gameDisplay.blit(point_images[point1], (100, 0))
+      #gameDisplay.blit(point_images[point2], (display_width - 100, 0))
 
       for anim in current_animations:
         if anim.showing:
@@ -260,10 +267,22 @@ def main():
           anim.current_frame += 1
 
       itertools.filterfalse(lambda x: not x.showing, current_animations)
-      print(len(current_animations))
 
+      for ball in balls:
+        for power in power_ups:
+          if (ball_colliding(ball, power) and not power.used):
+            power.used = True
+            current_power_ups.append(power.effect)
+
+      for effect in current_power_ups:
+        if effect == 'split':
+          balls.append(Ball(balls[len(balls)-1].x, balls[len(balls)-1].y, balls[len(balls)-1].vx, -(balls[len(balls)-1].x)))
+          current_power_ups.remove(effect)
+
+      # Apply current effects
       for power in power_ups:
-        gameDisplay.blit(get_sprite(power.effect), (power.x, power.y))
+        if not power.used:
+          gameDisplay.blit(get_sprite(power.effect), (power.x, power.y))
 
       pygame.draw.rect(gameDisplay, white, (p1.x, p1.y, p1.width, p1.height), 3)
       pygame.draw.rect(gameDisplay, white, (p2.x, p2.y, p2.width, p2.height), 3)
@@ -278,6 +297,7 @@ def main():
       else:
         six_frame_count += 1
 
+    print(len(balls))
     pygame.display.update()
     clock.tick(60)
 
